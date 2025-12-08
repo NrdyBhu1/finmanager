@@ -66,4 +66,84 @@ class FinanceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void addTransaction(Transaction transaction) {
+    if (_currentSheet == null) {
+      createNewSheet();
+    }
+
+    if (transaction.type == 'incoming') {
+      _currentSheet.balance += transaction.amount;
+    } else {
+      if (_currentSheet.balance >= transaction.amount) {
+        _currentSheet.balance -= transaction.amount;
+      } else {
+        return;
+      }
+    }
+
+    _currentSheet.transactions.add(transaction);
+    _currentSheet.transactions.sort((a, b) => a.date.compareTo(b.date));
+    notifyListeners();
+  }
+
+  void editTransaction(Transaction oldTransaction, Transaction newTransaction) {
+    if (_currentSheet == null) {
+      return;
+    }
+
+    if (oldTransaction.type == 'incoming') {
+      _currentSheet.balance -= oldTransaction.amount;
+    } else {
+      _currentSheet.balance += oldTransaction.amount;
+    }
+
+    if (newTransaction.type == 'incoming') {
+      _currentSheet.balance += newTransaction.amount;
+    } else {
+      if (_currentSheet.balance >= newTransaction.amount) {
+        _currentSheet.balance -= newTransaction.amount;
+      } else {
+        if (oldTransaction.type == 'incoming') {
+          _currentSheet.balance += oldTransaction.amount;
+        } else {
+          _currentSheet.balance -= oldTransaction.amount;
+        }
+      }
+    }
+
+    final index = _currentSheet.transactions.indexWhere((t) => t.id == oldTransaction.id);
+    if (index != -1) {
+      _currentSheet.transactions[index] = newTransaction;
+    }
+    
+    _currentSheet.transactions.sort((a, b) => a.date.compareTo(b.date));
+    saveSheets();
+    notifyListeners();
+  }
+
+  void deleteTransaction(Transaction transaction) {
+    if (_currentSheet == null) {
+      return;
+    }
+
+    if (transaction.type == 'incoming') {
+      _currentSheet.balance -= transaction.amount;
+    } else {
+      _currentSheet.balance += transaction.amount;
+    }
+
+    _currentSheet.transactions.removeWhere((t) => t.id == transaction.id);
+    saveSheets();
+    notifyListeners();
+  }
+
+  void deleteSheet(Sheet sheet) {
+    if (_sheets.length > 1) {
+      _sheets.remove(sheet);
+      _currentSheet = _sheets.first;
+      saveSheets();
+      notifyListeners();
+    }
+  }
+
 }

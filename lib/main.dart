@@ -14,7 +14,12 @@ void main() async {
 
   await Hive.openBox<Sheet>('sheetsBox');
   
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => FinanceProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
