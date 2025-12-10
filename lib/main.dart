@@ -12,7 +12,7 @@ void main() async {
 
   Hive.registerAdapter(TransactionAdapter());
   Hive.registerAdapter(SheetAdapter());
-
+  
   await Hive.openBox<Sheet>('sheetsBox');
   
   runApp(
@@ -26,7 +26,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,19 +33,92 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const LockScreenPage(),
+      routes: {
+        '/': (context) => const LockScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }
 
-class LockScreenPage extends StatefulWidget {
-  const LockScreenPage({super.key});
+
+class LockScreen extends StatefulWidget {
+  const LockScreen({super.key});
 
   @override
-  State<LockScreenPage> createState() => _LockScreenPageState();
+  State<LockScreen> createState() => _LockScreenState();
 }
 
-class _LockScreenPageState extends State<LockScreenPage> with SingleTickerProviderStateMixin {
+class _LockScreenState extends State<LockScreen> {
+  double _sliderValue = 5;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Center(child: Text("Lock Screen"))),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          GestureDetector(
+            child: Text("Hello"),
+            onTap: () {
+              setState(() {
+                _sliderValue = 5;
+              });
+            },
+          ),
+          Center(
+            child: Container(
+              width: 500.0,
+              child: SliderTheme(
+                data: SliderThemeData(
+                  trackHeight: 60,
+                  activeTrackColor: Colors.black87,
+                  inactiveTrackColor: Colors.black54,
+                  thumbColor: Colors.white70,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 25.0),
+                ),
+                child: Slider(
+                  value: _sliderValue,
+                  min: 0,
+                  max: 100,
+                  onChanged: (double value) {
+                    if (value >= 85) {
+                      setState(() {
+                        _sliderValue = 100;
+                      });
+                      Navigator.of(context).pushReplacementNamed('/home');
+                      return;
+                    }
+                    if (value > _sliderValue) {
+                      setState(() {
+                        _sliderValue = value;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: 50.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimationDownToUp;
   late Animation<Offset> _offsetAnimationMiddleToUp;
@@ -112,52 +184,6 @@ class _LockScreenPageState extends State<LockScreenPage> with SingleTickerProvid
             child: const Text("Hello!"),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
