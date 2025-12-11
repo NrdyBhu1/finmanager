@@ -26,7 +26,7 @@ class FinanceProvider with ChangeNotifier {
       _currentSheet = retrievedSheets.first;
       _currentSheet?.transactions.sort((a, b) => a.date.compareTo(b.date));
     } else {
-      _createNewSheet();
+      createNewSheet();
     }
 
     notifyListeners();
