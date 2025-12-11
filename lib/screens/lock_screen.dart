@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../config.dart';
 
@@ -16,8 +17,19 @@ class _LockScreenState extends State<LockScreen> {
       appBar: AppBar(title: Center(child: Text("Slide to unlock")), backgroundColor: Colors.black38),
       backgroundColor: Colors.black38,
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 80.0, bottom: 40.0),
+            child: Image.asset(
+              'assets/icon/icon.png',
+              width: 256,
+              height: 256,
+              fit: BoxFit.cover,
+              semanticLabel: 'Application Icon',
+            ),
+          ),
+            const Spacer(),
           Center(
             child: Container(
               width: MediaQuery.of(context).size.width * 0.9,
