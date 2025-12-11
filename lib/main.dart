@@ -113,7 +113,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           onTap: _handleTap,
           child: SlideTransition(
             position: !hasTapped ? _offsetAnimationDownToUp : _offsetAnimationMiddleToUp,
-            child: const Text("Hello!"),
+            child: const Text(
+              "Hello!",
+              style: TextStyle(
+                fontSize: 32.0,
+              ),
+            ),
           ),
         ),
       ),

@@ -12,28 +12,29 @@ class _LockScreenState extends State<LockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Lock Screen"))),
+      appBar: AppBar(title: Center(child: Text("Slide to unlock")), backgroundColor: Colors.black38),
+      backgroundColor: Colors.black38,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          GestureDetector(
-            child: Text("Hello"),
-            onTap: () {
-              setState(() {
-                _sliderValue = 5;
-              });
-            },
-          ),
+          // GestureDetector(
+          //   child: Text("Hello"),
+          //   onTap: () {
+          //     setState(() {
+          //       _sliderValue = 5;
+          //     });
+          //   },
+          // ),
           Center(
             child: Container(
-              width: 500.0,
+              width: MediaQuery.of(context).size.width * 0.875,
               child: SliderTheme(
                 data: SliderThemeData(
-                  trackHeight: 60,
+                  trackHeight: 80,
                   activeTrackColor: Colors.black87,
                   inactiveTrackColor: Colors.black54,
                   thumbColor: Colors.white70,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 25.0),
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 35.0),
                 ),
                 child: Slider(
                   value: _sliderValue,
@@ -58,8 +59,8 @@ class _LockScreenState extends State<LockScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(
-              bottom: 50.0,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.175,
             ),
           ),
         ],
