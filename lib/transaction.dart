@@ -2,6 +2,8 @@ import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'config.dart';
+
 part 'transaction.g.dart';
 
 @HiveType(typeId: 0)
@@ -100,7 +102,7 @@ class _TransactionCardState extends State<TransactionCard> {
             children: <Widget>[
               if (widget.transaction.description != null)
                 Text(
-                widget.transaction.description,
+                widget.transaction.description!,
                 style: TextStyle(fontSize: 24.0, color: Colors.white),
               ),
               Text(

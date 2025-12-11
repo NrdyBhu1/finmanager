@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config.dart';
 
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});
@@ -17,22 +18,14 @@ class _LockScreenState extends State<LockScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // GestureDetector(
-          //   child: Text("Hello"),
-          //   onTap: () {
-          //     setState(() {
-          //       _sliderValue = 5;
-          //     });
-          //   },
-          // ),
           Center(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.875,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: SliderTheme(
                 data: SliderThemeData(
                   trackHeight: 80,
-                  activeTrackColor: Colors.black87,
-                  inactiveTrackColor: Colors.black54,
+                  activeTrackColor: lighten(primaryDarkBackground, 0.3),
+                  inactiveTrackColor: lighten(primaryDarkBackground, 0.1),
                   thumbColor: Colors.white70,
                   thumbShape: RoundSliderThumbShape(enabledThumbRadius: 35.0),
                 ),

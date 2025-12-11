@@ -2,6 +2,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'config.dart';
 import 'transaction.dart';
 import 'sheets.dart';
 import 'finance_provider.dart';
@@ -32,9 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Fin Manager',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
+      theme: appTheme,
       routes: {
         '/': (context) => const LockScreen(),
         '/home': (context) => const HomeScreen(),
