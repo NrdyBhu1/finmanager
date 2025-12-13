@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+const uuid = Uuid();
 
 Color lighten(Color color, [double amount = .1]) {
   assert(amount >= 0 && amount <= 1);
@@ -70,7 +73,7 @@ final ThemeData appTheme = ThemeData(
 
   // 4. Component Theming
   appBarTheme: const AppBarTheme(
-    backgroundColor: secondaryGray,
+    backgroundColor: primaryDarkBackground,
     foregroundColor: primaryWhite,
     elevation: 0, // Flat design
     centerTitle: false,
@@ -90,14 +93,15 @@ final ThemeData appTheme = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: accentGreen, // The 'Create Transaction' button color
-      foregroundColor:
-          primaryDarkBackground, // Text on the button should be dark
+      foregroundColor: primaryWhite, // Text on the button should be dark
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10), // Rounded corners for buttons
       ),
+      elevation: 6.0,
     ),
   ),
+
 
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,

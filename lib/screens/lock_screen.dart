@@ -14,8 +14,7 @@ class _LockScreenState extends State<LockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Slide to unlock")), backgroundColor: Colors.black38),
-      backgroundColor: Colors.black38,
+      appBar: AppBar(title: Center(child: Text("Slide to unlock"))),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [

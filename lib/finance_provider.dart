@@ -14,6 +14,7 @@ class FinanceProvider with ChangeNotifier {
 
   FinanceProvider() {
     loadSheets();
+    print(_currentSheet!.balance);
   }
 
   Future<void> loadSheets() async {
@@ -70,23 +71,23 @@ class FinanceProvider with ChangeNotifier {
   }
 
   void addTransaction(Transaction transaction) {
-    if (_currentSheet != null) {
-      if (transaction.type == 'incoming') {
-        _currentSheet!.balance += transaction.amount;
-      } else {
-        if (_currentSheet!.balance >= transaction.amount) {
-          _currentSheet!.balance -= transaction.amount;
-        } else {
-          return;
-        }
-      }
-
-      _currentSheet!.transactions.add(transaction);
-      _currentSheet!.transactions.sort((a, b) => a.date.compareTo(b.date));
-      notifyListeners();
-    } else {
+    if (_currentSheet == null) {
       createNewSheet();
     }
+    if (transaction.type == 'incoming') {
+      _currentSheet!.balance += transaction.amount;
+    } else {
+      if (_currentSheet!.balance >= transaction.amount) {
+        _currentSheet!.balance -= transaction.amount;
+      } else {
+        return;
+      }
+    }
+
+    _currentSheet!.transactions.add(transaction);
+    _currentSheet!.transactions.sort((a, b) => a.date.compareTo(b.date));
+    saveSheets();
+    notifyListeners();
   }
 
   void editTransaction(Transaction oldTransaction, Transaction newTransaction) {

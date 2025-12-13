@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 import 'config.dart';
 import 'transaction.dart';
@@ -42,6 +43,216 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class AddTransactionForm extends StatefulWidget {
+  const AddTransactionForm({super.key});
+
+  @override
+  State<AddTransactionForm> createState() => _AddTransactionFormState();
+}
+
+class _AddTransactionFormState extends State<AddTransactionForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  String _type = 'outgoing';
+  String? _description = null;
+  double _amount = 0.00;
+  DateTime _date = DateTime.now();
+
+  String get _formattedDate => DateFormat('MMM dd, yyyy').format(_date);
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2023),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null && picked != _date) {
+      setState(() {
+          _date = picked;
+      });
+    }
+  }
+
+  void _submitForm(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      Provider.of<FinanceProvider>(context, listen: false).addTransaction(
+        Transaction(id: uuid.v1(),
+          amount: _amount,
+          description: _description,
+          date: _date,
+          type: _type));
+
+      Navigator.of(context).pop();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Added Transaction')),
+      );
+      
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Transaction details")),
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            children: <Widget>[
+
+              // Amount
+              TextFormField(
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                style: TextStyle(
+                  fontSize: 32.0,
+                ),
+                decoration: InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: false,
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: accentGreen, width: 2.0),
+                  ),
+
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: secondaryGray, width: 1.0),
+                  ),
+                  hintText: "Amount",
+                  suffix: Text('Bucks'),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                    
+                  }
+
+                  return null;
+                },
+
+                onSaved: (value) {
+                  _amount = double.parse(value!);
+                },
+              ),
+              
+              const SizedBox(height: 30),
+              
+              // Type
+              DropdownButtonFormField<String> (
+                value: _type,
+
+                items: const [
+                  DropdownMenuItem<String>(
+                    value: 'outgoing',
+                    child: Text('Debit'),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: 'incoming',
+                    child: Text('Credit'),
+                  ),
+                ],
+
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a transaction type';
+                  }
+                  return null;
+                },
+
+                onSaved: (value) {
+                  _type = value!;
+                },
+
+                onChanged: (String? newValue) {
+                  setState(() {
+                      _type = newValue!;
+                  });
+                },
+                
+              ),
+              
+              const SizedBox(height: 30),
+
+              // Description
+              if (_type == 'outgoing')
+              TextFormField(
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: "Description",
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                    
+                  }
+
+                  return null;
+                },
+
+                onSaved: (value) {
+                  _description = value;
+                },
+              ),
+
+              const SizedBox(height: 30),
+
+              // Date Picker
+              TextFormField(
+                controller: TextEditingController(text: _formattedDate),
+
+                readOnly: true,
+
+                onTap: () => _selectDate(context),
+
+                decoration: InputDecoration(
+                  hintText: 'Select a Date',
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a date.';
+                  }
+                  return null;
+                },
+              ),
+              
+              Spacer(),
+              
+              ElevatedButton(
+                onPressed: () {
+                  _submitForm(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0), 
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Add Transaction',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.add),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -52,14 +263,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late FinanceProvider financeProvider;
   late Sheet currentSheet;
-  
+
   @override
   Widget build(BuildContext context) {
-    financeProvider = Provider.of<FinanceProvider>(context);
+    financeProvider = context.watch<FinanceProvider>();
     currentSheet = financeProvider.currentSheet!;
     
     return Scaffold(
-      appBar: AppBar(title: Text("Recent Transactions"), backgroundColor: primaryDarkBackground),
+      appBar: AppBar(title: Text("Recent Transactions")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -76,7 +287,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           height: 60.0,
           child: ElevatedButton(
             onPressed: () {
-              print('Wide button pressed!');
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return AddTransactionForm();
+                },
+              );
             },
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
@@ -105,82 +321,4 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   }
   
-  // late AnimationController _controller;
-  // late Animation<Offset> _offsetAnimationDownToUp;
-  // late Animation<Offset> _offsetAnimationMiddleToUp;
-  // bool hasTapped = false;
-
-  // void _handleTap() {
-  //   setState(() {
-  //       hasTapped = true;
-  //   });
-
-  //   _controller.duration = const Duration(milliseconds: 500);
-
-  //   _controller.reset();
-  //   _controller.forward();
-  // }
-
-  // void _handleLongPress() {
-  //   print("hello!");
-  // }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller = AnimationController(
-  //     vsync: this,
-  //     duration: const Duration(seconds: 2),
-  //   );
-
-  //   _offsetAnimationDownToUp = Tween<Offset>(
-  //     begin: Offset(0.0, 20.0),
-  //     end: Offset(0.0, 0.0),
-  //   ).animate(
-  //     CurvedAnimation(
-  //       parent: _controller,
-  //       curve: Curves.elasticOut,
-  //     ),
-  //   );
-
-  //   _offsetAnimationMiddleToUp = Tween<Offset>(
-  //     begin: Offset(0.0, 0.0),
-  //     end: Offset(0.0, -20.0),
-  //   ).animate(
-  //       _controller,
-  //   );
-    
-  //   Future.delayed(const Duration(seconds: 1), () {
-  //       if (mounted) {
-  //         _controller.forward();
-  //       }
-  //   });
-  // }
-
-  // @override
-  // void dispose() {
-  //   _controller.dispose();
-  //   super.dispose();
-  // }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: Center(
-  //       child: GestureDetector(
-  //         onLongPress: _handleLongPress,
-  //         // onTap: _handleTap,  
-  //         child: SlideTransition(
-  //           position: !hasTapped ? _offsetAnimationDownToUp : _offsetAnimationMiddleToUp,
-  //           child: const Text(
-  //             "Hello!",
-  //             style: TextStyle(
-  //               fontSize: 32.0,
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }
