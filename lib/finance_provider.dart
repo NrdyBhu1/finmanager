@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'transaction.dart';
 import 'sheets.dart';
+import 'config.dart';
 
 class FinanceProvider with ChangeNotifier {
   List<Sheet> _sheets = [];
@@ -22,7 +23,7 @@ class FinanceProvider with ChangeNotifier {
 
     final List<Sheet> retrievedSheets = sheetsBox.values.toList();
 
-    if (retrievedSheets!.isNotEmpty) {
+    if (retrievedSheets.isNotEmpty) {
       _sheets = retrievedSheets;
       _currentSheet = retrievedSheets.first;
       _currentSheet?.transactions.sort((a, b) => a.date.compareTo(b.date));
@@ -36,18 +37,16 @@ class FinanceProvider with ChangeNotifier {
   Future<void> saveSheets() async {
     final sheetsBox = Hive.box<Sheet>('sheetsBox');
 
-    await sheetsBox.clear();
-
     for (var sheet in _sheets) {
-      await sheetsBox.put(sheet.name, sheet);
+      await sheetsBox.put(sheet.id, sheet);
     }
   }
 
-  void _createNewSheet({ double initialBalance = 0.0 }) {
+  void _createNewSheet({double initialBalance = 0.0}) {
     final month = DateFormat.MMMM().format(DateTime.now());
     final sheetNumber = _sheets.where((s) => s.name.contains(month)).length + 1;
     final newSheet = Sheet(
-      id: DateTime.now().toString(),
+      id: uuid.v1(),
       name: 'Sheet - $month - $sheetNumber',
       transactions: [],
       balance: initialBalance,
@@ -112,11 +111,13 @@ class FinanceProvider with ChangeNotifier {
         }
       }
 
-      final index = _currentSheet!.transactions.indexWhere((t) => t.id == oldTransaction.id);
+      final index = _currentSheet!.transactions.indexWhere(
+        (t) => t.id == oldTransaction.id,
+      );
       if (index != -1) {
         _currentSheet!.transactions[index] = newTransaction;
       }
-      
+
       _currentSheet!.transactions.sort((a, b) => a.date.compareTo(b.date));
       saveSheets();
       notifyListeners();
@@ -140,10 +141,11 @@ class FinanceProvider with ChangeNotifier {
   void deleteSheet(Sheet sheet) {
     if (_sheets.length > 1) {
       _sheets.remove(sheet);
+      final sheetsBox = Hive.box<Sheet>('sheetsBox');
+      sheetsBox.delete(sheet.id);
       _currentSheet = _sheets.first;
       saveSheets();
       notifyListeners();
     }
   }
-
 }
