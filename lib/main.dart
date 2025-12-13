@@ -64,9 +64,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: currentSheet.transactions.map((tran) {
-              return TransactionCard(transaction: tran);
-          }).toList(),
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                '${currentSheet.balance.toString()} bucks',
+                style: TextStyle(
+                  fontSize: 35.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: ListView(
+                children: currentSheet.transactions.map((tran) {
+                    return TransactionCard(transaction: tran);
+                }).toList(),
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -109,7 +126,5 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
 
     );
-
-  }
-  
+  }  
 }
