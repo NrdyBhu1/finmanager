@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../config.dart';
 
@@ -28,7 +27,7 @@ class _LockScreenState extends State<LockScreen> {
               semanticLabel: 'Application Icon',
             ),
           ),
-            const Spacer(),
+          const Spacer(),
           Center(
             child: Container(
               width: MediaQuery.of(context).size.width * 0.9,

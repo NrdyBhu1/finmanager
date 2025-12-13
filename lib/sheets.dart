@@ -15,10 +15,10 @@ class Sheet {
   double balance;
 
   Sheet({
-      required this.id,
-      required this.name,
-      required this.transactions,
-      required this.balance,
+    required this.id,
+    required this.name,
+    required this.transactions,
+    required this.balance,
   });
 
   // Map<String, dynamic> toJson() => {

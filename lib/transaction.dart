@@ -22,14 +22,13 @@ class Transaction {
   String type;
 
   Transaction({
-      required this.id,
-      required this.amount,
-      this.description,
-      required this.date,
-      required this.type
+    required this.id,
+    required this.amount,
+    this.description,
+    required this.date,
+    required this.type,
   });
 }
-
 
 class TransactionCard extends StatefulWidget {
   final Transaction transaction;
@@ -68,7 +67,10 @@ class _TransactionCardState extends State<TransactionCard> {
           context: context,
           isScrollControlled: true,
           builder: (BuildContext context) {
-            return TransactionForm(isEditing: true, oldTransaction: widget.transaction);
+            return TransactionForm(
+              isEditing: true,
+              oldTransaction: widget.transaction,
+            );
           },
         );
       },
@@ -97,10 +99,10 @@ class _TransactionCardState extends State<TransactionCard> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 if (widget.transaction.description != null)
-                Text(
-                  widget.transaction.description!,
-                  style: TextStyle(fontSize: 24.0, color: Colors.white),
-                ),
+                  Text(
+                    widget.transaction.description!,
+                    style: TextStyle(fontSize: 24.0, color: Colors.white),
+                  ),
                 Text(
                   DateFormat("MMM dd, yyyy").format(date),
                   style: TextStyle(fontSize: 14.0, color: Colors.white70),
@@ -126,18 +128,12 @@ class _TransactionCardState extends State<TransactionCard> {
   }
 }
 
-
 class TransactionForm extends StatefulWidget {
   final Transaction? oldTransaction;
   final bool? isEditing;
 
-  const TransactionForm({
-      super.key,
-      this.isEditing,
-      this.oldTransaction
-  });
-  
-  
+  const TransactionForm({super.key, this.isEditing, this.oldTransaction});
+
   @override
   State<TransactionForm> createState() => _TransactionFormState();
 }
@@ -169,7 +165,6 @@ class _TransactionFormState extends State<TransactionForm> {
       _description = null;
       _amount = 0.00;
       _date = DateTime.now();
-    
     }
   }
 
@@ -183,7 +178,7 @@ class _TransactionFormState extends State<TransactionForm> {
 
     if (picked != null && picked != _date) {
       setState(() {
-          _date = picked;
+        _date = picked;
       });
     }
   }
@@ -191,24 +186,32 @@ class _TransactionFormState extends State<TransactionForm> {
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      Transaction newTransaction = Transaction(id: _id,
+      Transaction newTransaction = Transaction(
+        id: _id,
         amount: _amount,
         description: _description,
         date: _date,
-        type: _type);
+        type: _type,
+      );
 
-      if (widget.isEditing != null ) {
-        Provider.of<FinanceProvider>(context, listen: false).editTransaction(widget.oldTransaction!, newTransaction);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transaction Edited!')),
-        );
-      } else { 
-        Provider.of<FinanceProvider>(context, listen: false).addTransaction(newTransaction);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transaction Added!')),
-        );
+      if (widget.isEditing != null) {
+        Provider.of<FinanceProvider>(
+          context,
+          listen: false,
+        ).editTransaction(widget.oldTransaction!, newTransaction);
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Transaction Edited!')));
+      } else {
+        Provider.of<FinanceProvider>(
+          context,
+          listen: false,
+        ).addTransaction(newTransaction);
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Transaction Added!')));
       }
 
       Navigator.of(context).pop();
@@ -217,13 +220,16 @@ class _TransactionFormState extends State<TransactionForm> {
 
   void _deleteTransaction(BuildContext context) {
     if (widget.isEditing != null) {
-      Provider.of<FinanceProvider>(context, listen: false).deleteTransaction(widget.oldTransaction!);
-      
+      Provider.of<FinanceProvider>(
+        context,
+        listen: false,
+      ).deleteTransaction(widget.oldTransaction!);
+
       Navigator.of(context).pop();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transaction Deleted!')),
-      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Transaction Deleted!')));
     }
   }
 
@@ -237,15 +243,12 @@ class _TransactionFormState extends State<TransactionForm> {
           padding: EdgeInsets.all(20.0),
           child: Column(
             children: <Widget>[
-
               // Amount
               TextFormField(
                 initialValue: _amount.toString(),
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
-                style: TextStyle(
-                  fontSize: 32.0,
-                ),
+                style: TextStyle(fontSize: 32.0),
                 decoration: InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: false,
@@ -262,7 +265,6 @@ class _TransactionFormState extends State<TransactionForm> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your name';
-                    
                   }
 
                   return null;
@@ -272,11 +274,11 @@ class _TransactionFormState extends State<TransactionForm> {
                   _amount = double.parse(value!);
                 },
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // Type
-              DropdownButtonFormField<String> (
+              DropdownButtonFormField<String>(
                 value: _type,
 
                 items: const [
@@ -303,35 +305,31 @@ class _TransactionFormState extends State<TransactionForm> {
 
                 onChanged: (String? newValue) {
                   setState(() {
-                      _type = newValue!;
+                    _type = newValue!;
                   });
                 },
-                
               ),
-              
+
               const SizedBox(height: 30),
 
               // Description
               if (_type == 'outgoing')
-              TextFormField(
-                initialValue: _description ?? '',
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: "Description",
+                TextFormField(
+                  initialValue: _description ?? '',
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(hintText: "Description"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+
+                    return null;
+                  },
+
+                  onSaved: (value) {
+                    _description = value;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                    
-                  }
-
-                  return null;
-                },
-
-                onSaved: (value) {
-                  _description = value;
-                },
-              ),
               const SizedBox(height: 30),
 
               // Date Picker
@@ -354,57 +352,53 @@ class _TransactionFormState extends State<TransactionForm> {
                   return null;
                 },
               ),
-              
+
               Spacer(),
-              
+
               ElevatedButton(
                 onPressed: () {
                   _submitForm(context);
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0), 
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Submit Transaction',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    Text('Submit Transaction', style: TextStyle(fontSize: 18)),
                     SizedBox(width: 8),
                     Icon(Icons.check_circle),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 30),
 
               if (widget.isEditing != null)
-              ElevatedButton(
-                onPressed: () {
-                  _deleteTransaction(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: negativeRed,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0), 
+                ElevatedButton(
+                  onPressed: () {
+                    _deleteTransaction(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: negativeRed,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Delete Transaction',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.delete),
+                    ],
                   ),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Delete Transaction',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.delete),
-                  ],
-                ),
-              ),
-
             ],
           ),
         ),

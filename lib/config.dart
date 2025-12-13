@@ -102,7 +102,6 @@ final ThemeData appTheme = ThemeData(
     ),
   ),
 
-
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,
     fillColor: primaryDarkBackground, // Inputs use the dark background

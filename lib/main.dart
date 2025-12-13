@@ -16,9 +16,9 @@ void main() async {
 
   Hive.registerAdapter(TransactionAdapter());
   Hive.registerAdapter(SheetAdapter());
-  
+
   await Hive.openBox<Sheet>('sheetsBox');
-  
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => FinanceProvider(),
@@ -50,7 +50,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late FinanceProvider financeProvider;
   late Sheet currentSheet;
 
@@ -58,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     financeProvider = context.watch<FinanceProvider>();
     currentSheet = financeProvider.currentSheet!;
-    
+
     return Scaffold(
       appBar: AppBar(title: Text("Recent Transactions")),
       body: Center(
@@ -69,17 +70,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               padding: EdgeInsets.all(16.0),
               child: Text(
                 '${currentSheet.balance.toString()} bucks',
-                style: TextStyle(
-                  fontSize: 35.0,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold),
               ),
             ),
 
             Expanded(
               child: ListView(
                 children: currentSheet.transactions.map((tran) {
-                    return TransactionCard(transaction: tran);
+                  return TransactionCard(transaction: tran);
                 }).toList(),
               ),
             ),
@@ -104,19 +102,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             },
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0), 
+                borderRadius: BorderRadius.circular(30.0),
               ),
-              backgroundColor: Theme.of(context).colorScheme.secondary, 
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               foregroundColor: Colors.white,
               elevation: 6.0,
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Create Transaction',
-                  style: TextStyle(fontSize: 18),
-                ),
+                Text('Create Transaction', style: TextStyle(fontSize: 18)),
                 SizedBox(width: 8),
                 Icon(Icons.add),
               ],
@@ -124,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
       ),
-
     );
-  }  
+  }
 }
