@@ -1,7 +1,13 @@
+import 'dart:io';
+import 'dart:typed_data'; // Required for Uint8List
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart'; // Or use share_plus
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import 'config.dart';
 import 'transaction.dart';
@@ -28,6 +34,67 @@ void main() async {
     ),
   );
 }
+
+
+Future<Uint8List> generateTransactionPdf(List<Transaction> transactions) async {
+  final pdf = pw.Document();
+
+  // Define the table headers
+  final headers = ['Date', 'Description', 'Amount'];
+
+  // Map your Transaction objects to a list of lists (table rows)
+  final data = transactions.map((t) {
+    return [
+      DateFormat('yyyy-MM-dd').format(t.date),
+      t.description ?? '',
+      '${t.type == 'incoming' ? '+' : '-'}${t.amount.toStringAsFixed(2)}',
+    ];
+  }).toList();
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Header(level: 0, text: 'Monthly Transaction Report'),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              headers: headers,
+              data: data,
+              border: pw.TableBorder.all(),
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              cellAlignment: pw.Alignment.centerRight,
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
+  return pdf.save(); // Returns the PDF as byte data
+}
+
+Future<void> exportAndOpenFile(Uint8List pdfBytes, String sheetName) async {
+  try {
+    final output = await getTemporaryDirectory();
+    
+    final fileName = '${sheetName.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${output.path}/$fileName');
+    
+    await file.writeAsBytes(pdfBytes);
+
+    final result = await OpenFilex.open(file.path);
+    
+    if (result.type != ResultType.done) {
+      print('Could not open file: ${result.message}');
+    }
+
+  } catch (e) {
+    print('Error during PDF export: $e');
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -57,13 +124,36 @@ class _HomeScreenState extends State<HomeScreen>
   late FinanceProvider financeProvider;
   late Sheet currentSheet;
 
+  void onExportButtonPressed(BuildContext context) async {
+
+    if (currentSheet == null) {
+      return; 
+    }
+
+    final transactions = currentSheet!.transactions;
+    final sheetName = currentSheet!.name;
+
+    final pdfBytes = await generateTransactionPdf(transactions);
+    
+    await exportAndOpenFile(pdfBytes, sheetName); 
+  }
+
   @override
   Widget build(BuildContext context) {
     financeProvider = context.watch<FinanceProvider>();
     currentSheet = financeProvider.currentSheet!;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Recent Transactions")),
+      appBar: AppBar(
+        title: Text("Recent Transactions"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.save_as),
+            tooltip: 'Export sheet',
+            onPressed: () { onExportButtonPressed(context); },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
