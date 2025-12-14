@@ -8,6 +8,8 @@ import 'transaction.dart';
 import 'sheets.dart';
 import 'finance_provider.dart';
 
+import 'monthly_chart.dart';
+
 import 'screens/lock_screen.dart';
 
 void main() async {
@@ -74,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
 
+            MonthlyDebitChart(),
+
             Expanded(
               child: ListView(
                 children: currentSheet.transactions.map((tran) {
@@ -81,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen>
                 }).toList(),
               ),
             ),
+            SizedBox(height: 90.0),
           ],
         ),
       ),

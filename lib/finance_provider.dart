@@ -137,6 +137,32 @@ class FinanceProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  
+  Map<int, double> get monthlyDebitDataByDay {
+    if (_currentSheet == null) {
+      return {};
+    }
+    final debits = _currentSheet!.transactions.where((t) => t.type != 'incoming');
+    
+    final Map<int, double> dailyDebits = {};
+
+    if (_currentSheet!.transactions.isNotEmpty) {
+      final now = DateTime.now();
+      final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
+
+      for (int day = 1; day <= lastDayOfMonth; day++) {
+        dailyDebits[day] = 0.0;
+      }
+    }
+
+
+    for (var transaction in debits) {
+      final dayOfMonth = transaction.date.day;
+      dailyDebits[dayOfMonth] = (dailyDebits[dayOfMonth] ?? 0.0) + transaction.amount;
+    }
+
+    return dailyDebits;
+  }
 
   void deleteSheet(Sheet sheet) {
     if (_sheets.length > 1) {
