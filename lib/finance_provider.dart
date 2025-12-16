@@ -42,6 +42,12 @@ class FinanceProvider with ChangeNotifier {
     }
   }
 
+  void switchSheets(Sheet sheet) {
+    _currentSheet = sheet;
+    _currentSheet?.transactions.sort((a, b) => a.date.compareTo(b.date));
+    notifyListeners();
+  }
+
   void _createNewSheet({double initialBalance = 0.0}) {
     final month = DateFormat.MMMM().format(DateTime.now());
     final sheetNumber = _sheets.where((s) => s.name.contains(month)).length + 1;

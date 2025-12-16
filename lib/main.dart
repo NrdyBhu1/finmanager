@@ -36,7 +36,7 @@ void main() async {
 }
 
 
-Future<Uint8List> generateTransactionPdf(List<Transaction> transactions) async {
+Future<Uint8List> generateTransactionPdf(List<Transaction> transactions, double balance) async {
   final pdf = pw.Document();
 
   // Define the table headers
@@ -64,8 +64,22 @@ Future<Uint8List> generateTransactionPdf(List<Transaction> transactions) async {
               data: data,
               border: pw.TableBorder.all(),
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerRight,
+              cellAlignment: pw.Alignment.centerLeft,
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.centerLeft,
+                2: pw.Alignment.centerRight,
+              },
             ),
+
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(5),
+              child: pw.Text('Balance', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(5),
+              child: pw.Text('$balance.toStringAsFixed(2)', textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ),            
           ],
         );
       },
@@ -133,9 +147,33 @@ class _HomeScreenState extends State<HomeScreen>
     final transactions = currentSheet!.transactions;
     final sheetName = currentSheet!.name;
 
-    final pdfBytes = await generateTransactionPdf(transactions);
+    final pdfBytes = await generateTransactionPdf(transactions, currentSheet!.balance);
     
     await exportAndOpenFile(pdfBytes, sheetName); 
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context, FinanceProvider financeProvider, Sheet sheet) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Sheet'),
+        content: const Text('Are you sure you want to delete this sheet?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              financeProvider.deleteSheet(sheet);
+              Navigator.of(context).pop();
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -145,13 +183,42 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Recent Transactions"),
         actions: <Widget>[
+          Spacer(),
+          DropdownButton<Sheet>(
+            value: currentSheet,
+            onChanged: (Sheet? newSheet) {
+              if (newSheet != null) {
+                financeProvider.switchSheet(newSheet);
+              }
+
+            },
+            items: financeProvider.sheets.map<DropdownMenuItem<Sheet>>((Sheet sheet) {
+                return DropdownMenuItem<Sheet>(
+                  value: sheet,
+                  child: Text(sheet.name),
+                );
+            }).toList(),
+          ),
+          Spacer(),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete sheet',
+            onPressed: () { _showDeleteConfirmation(context, financeProvider, currentSheet); },
+          ),
+          Spacer(),
+          IconButton(
+            icon: const Icon(Icons.post_add),
+            tooltip: 'Add sheet',
+            onPressed: () { financeProvider.createNewSheet(); },
+          ),
+          Spacer(),
           IconButton(
             icon: const Icon(Icons.save_as),
             tooltip: 'Export sheet',
             onPressed: () { onExportButtonPressed(context); },
           ),
+          Spacer(),
         ],
       ),
       body: Center(
@@ -161,12 +228,15 @@ class _HomeScreenState extends State<HomeScreen>
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                '${currentSheet.balance.toString()} bucks',
+                '${currentSheet.balance.toStringAsFixed(2)} bucks',
                 style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold),
               ),
             ),
 
-            MonthlyDebitChart(),
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: MonthlyDebitChart(),
+            ),
 
             Expanded(
               child: ListView(
@@ -189,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                isScrollControlled: true,
+                // isScrollControlled: true,
                 builder: (BuildContext context) {
                   return TransactionForm();
                 },

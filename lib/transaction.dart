@@ -377,28 +377,31 @@ class _TransactionFormState extends State<TransactionForm> {
               const SizedBox(height: 30),
 
               if (widget.isEditing != null)
-                ElevatedButton(
-                  onPressed: () {
-                    _deleteTransaction(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: negativeRed,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Delete Transaction',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.delete),
-                    ],
+              ElevatedButton(
+                onPressed: () {
+                  _deleteTransaction(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: negativeRed,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                 ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Delete Transaction',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.delete),
+                  ],
+                ),
+              ),
+
+              if (widget.isEditing != null)
+              const SizedBox(height: 30),
             ],
           ),
         ),
