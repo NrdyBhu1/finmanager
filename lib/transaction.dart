@@ -65,7 +65,7 @@ class _TransactionCardState extends State<TransactionCard> {
       onLongPress: () {
         showModalBottomSheet(
           context: context,
-          isScrollControlled: true,
+          // isScrollControlled: true,
           builder: (BuildContext context) {
             return TransactionForm(
               isEditing: true,
