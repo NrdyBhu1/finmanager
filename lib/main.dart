@@ -78,7 +78,7 @@ Future<Uint8List> generateTransactionPdf(List<Transaction> transactions, double 
             ),
             pw.Padding(
               padding: const pw.EdgeInsets.all(5),
-              child: pw.Text('$balance.toStringAsFixed(2)', textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              child: pw.Text('${balance.toStringAsFixed(2)}', textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             ),            
           ],
         );
