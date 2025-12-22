@@ -52,37 +52,38 @@ Future<Uint8List> generateTransactionPdf(List<Transaction> transactions, double 
   }).toList();
 
   pdf.addPage(
-    pw.Page(
-      build: (pw.Context context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Header(level: 0, text: 'Monthly Transaction Report'),
-            pw.SizedBox(height: 20),
-            pw.Table.fromTextArray(
-              headers: headers,
-              data: data,
-              border: pw.TableBorder.all(),
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerLeft,
-              cellAlignments: {
-                0: pw.Alignment.centerLeft,
-                1: pw.Alignment.centerLeft,
-                2: pw.Alignment.centerRight,
-              },
-            ),
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(32),
+      build: (pw.Context context) => [
+          pw.Header(level: 0, text: 'Monthly Transaction Report'),
+          pw.SizedBox(height: 20),
+          pw.Table.fromTextArray(
+            headers: headers,
+            data: data,
+            border: pw.TableBorder.all(),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            cellAlignment: pw.Alignment.centerLeft,
+            cellAlignments: {
+              0: pw.Alignment.centerLeft,
+              1: pw.Alignment.centerLeft,
+              2: pw.Alignment.centerRight,
+            },
+          ),
 
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(5),
-              child: pw.Text('Balance', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-            ),
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(5),
-              child: pw.Text('${balance.toStringAsFixed(2)}', textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-            ),            
-          ],
-        );
-      },
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(5),
+            child: pw.Text('Balance', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(5),
+            child: pw.Text('${balance.toStringAsFixed(2)}', textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          ),            
+        ],
+        footer: (pw.Context context) => pw.Container(
+        alignment: pw.Alignment.centerRight,
+        child: pw.Text('Page ${context.pageNumber} of ${context.pagesCount}'),
+      ),
     ),
   );
 
