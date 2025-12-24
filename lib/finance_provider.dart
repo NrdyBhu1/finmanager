@@ -50,10 +50,9 @@ class FinanceProvider with ChangeNotifier {
 
   void _createNewSheet({double initialBalance = 0.0}) {
     final month = DateFormat.MMMM().format(DateTime.now());
-    final sheetNumber = _sheets.where((s) => s.name.contains(month)).length + 1;
     final newSheet = Sheet(
       id: uuid.v1(),
-      name: 'Sheet - $month - $sheetNumber',
+      name: 'Sheet $month',
       transactions: [],
       balance: initialBalance,
     );
