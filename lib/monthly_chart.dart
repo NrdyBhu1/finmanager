@@ -20,28 +20,33 @@ class MonthlyDebitChart extends StatefulWidget {
 }
 
 class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
-  // Styling colors inspired by the sample
-  List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a),
-  ];
+  // Use your theme colors
+  late List<Color> gradientColors;
 
   bool showAvg = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize colors here to access the theme if needed, 
+    // or use your constant definitions.
+    gradientColors = [
+      accentGreen,
+      lighten(accentGreen, 0.2), // Uses your lighten helper
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<FinanceProvider>(context);
     final dailyDebitData = provider.monthlyDebitDataByDay;
 
-    // 1. Prepare Data Spots
     List<FlSpot> chartSpots = dailyDebitData.entries
         .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
         .toList();
 
-    // Sort spots by X value to ensure the line draws correctly
     chartSpots.sort((a, b) => a.x.compareTo(b.x));
 
-    // 2. Calculate dynamic bounds and averages
     final maxAmount = chartSpots.isEmpty ? 1.0 : chartSpots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
     final avgAmount = chartSpots.isEmpty ? 0.0 : chartSpots.map((s) => s.y).reduce((a, b) => a + b) / chartSpots.length;
     final maxX = dailyDebitData.keys.isEmpty ? 31.0 : dailyDebitData.keys.reduce((a, b) => a > b ? a : b).toDouble();
@@ -53,7 +58,7 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
           child: Container(
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(18)),
-              color: Color(0xff232d37), // Dark background from sample
+              color: primaryDarkBackground, // Aligned with your theme
             ),
             child: Padding(
               padding: const EdgeInsets.only(right: 18, left: 12, top: 24, bottom: 12),
@@ -65,17 +70,18 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
             ),
           ),
         ),
-        // Average Toggle Button
-        SizedBox(
-          width: 60,
-          height: 34,
+        // Average Toggle Button - Styled to match your theme
+        Positioned(
+          top: 0,
+          left: 0,
           child: TextButton(
             onPressed: () => setState(() => showAvg = !showAvg),
             child: Text(
-              'avg',
+              'AVG',
               style: TextStyle(
                 fontSize: 12,
-                color: showAvg ? Colors.white.withOpacity(0.5) : Colors.white,
+                fontWeight: FontWeight.bold,
+                color: showAvg ? accentGreen : secondaryGray,
               ),
             ),
           ),
@@ -88,11 +94,12 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: true,
+        drawVerticalLine: false, // Cleaner look
         horizontalInterval: maxAmount / 3 > 0 ? maxAmount / 3 : 1,
-        verticalInterval: 5, // Grid line every 5 days
-        getDrawingHorizontalLine: (value) => const FlLine(color: Color(0xff37434d), strokeWidth: 1),
-        getDrawingVerticalLine: (value) => const FlLine(color: Color(0xff37434d), strokeWidth: 1),
+        getDrawingHorizontalLine: (value) => FlLine(
+          color: secondaryGray.withOpacity(0.1), // Subtle grid
+          strokeWidth: 1,
+        ),
       ),
       titlesData: FlTitlesData(
         show: true,
@@ -105,7 +112,10 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
             interval: 5,
             getTitlesWidget: (value, meta) => SideTitleWidget(
               meta: meta,
-              child: Text('${value.toInt()}', style: const TextStyle(color: Color(0xff68737d), fontSize: 12)),
+              child: Text(
+                '${value.toInt()}', 
+                style: const TextStyle(color: secondaryGray, fontSize: 12)
+              ),
             ),
           ),
         ),
@@ -115,32 +125,35 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
             interval: maxAmount / 3 > 0 ? maxAmount / 3 : 1,
             getTitlesWidget: (value, meta) => Text(
               value.toStringAsFixed(0),
-              style: const TextStyle(color: Color(0xff67727d), fontSize: 12),
+              style: const TextStyle(color: secondaryGray, fontSize: 12),
             ),
             reservedSize: 42,
           ),
         ),
       ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d)),
-      ),
+      borderData: FlBorderData(show: false), // Removed border for modern look
       minX: 1,
       maxX: maxX,
       minY: 0,
-      maxY: maxAmount * 1.2, // Give some head room
+      maxY: maxAmount * 1.2,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
           isCurved: true,
+          curveSmoothness: 0.35,
           gradient: LinearGradient(colors: gradientColors),
-          barWidth: 5,
+          barWidth: 4,
           isStrokeCapRound: true,
           dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
-              colors: gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                accentGreen.withOpacity(0.3),
+                accentGreen.withOpacity(0.0),
+              ],
             ),
           ),
         ),
@@ -149,29 +162,24 @@ class _MonthlyDebitChartState extends State<MonthlyDebitChart> {
   }
 
   LineChartData avgData(List<FlSpot> spots, double maxX, double maxAmount, double avg) {
-    // Create spots for the flat average line
-    List<FlSpot> avgSpots = [FlSpot(1, avg), FlSpot(maxX, avg)];
-
     return LineChartData(
       lineTouchData: const LineTouchData(enabled: false),
       gridData: mainData(spots, maxX, maxAmount).gridData,
       titlesData: mainData(spots, maxX, maxAmount).titlesData,
-      borderData: mainData(spots, maxX, maxAmount).borderData,
+      borderData: FlBorderData(show: false),
       minX: 1,
       maxX: maxX,
       minY: 0,
       maxY: maxAmount * 1.2,
       lineBarsData: [
         LineChartBarData(
-          spots: avgSpots,
+          spots: [FlSpot(1, avg), FlSpot(maxX, avg)],
           isCurved: false,
-          barWidth: 5,
-          color: gradientColors[0].withOpacity(0.8),
+          barWidth: 2,
+          dashArray: [5, 5], // Dashed line for average
+          color: secondaryGray,
           dotData: const FlDotData(show: false),
-          belowBarData: BarAreaData(
-            show: true,
-            color: gradientColors[0].withOpacity(0.1),
-          ),
+          belowBarData: BarAreaData(show: false),
         ),
       ],
     );

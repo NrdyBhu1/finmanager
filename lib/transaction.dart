@@ -60,6 +60,25 @@ class _TransactionCardState extends State<TransactionCard> {
   }
 
   @override
+  void didUpdateWidget(TransactionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.transaction != oldWidget.transaction) {
+      setState(() {
+          if (widget.transaction.type == 'incoming') {
+            cardColor = accentGreen;
+            cardIcon = Icons.south_west;
+          } else {
+            cardColor = negativeRed;
+            cardIcon = Icons.north_east;
+          }
+          amount = widget.transaction.amount;
+          date = widget.transaction.date;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: () {
@@ -374,7 +393,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 60),
 
               if (widget.isEditing != null)
               ElevatedButton(
@@ -401,7 +420,7 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
 
               if (widget.isEditing != null)
-              const SizedBox(height: 30),
+              const SizedBox(height: 60),
             ],
           ),
         ),

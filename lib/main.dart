@@ -8,6 +8,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart';
 
 import 'config.dart';
 import 'transaction.dart';
@@ -26,6 +27,8 @@ void main() async {
   Hive.registerAdapter(SheetAdapter());
 
   await Hive.openBox<Sheet>('sheetsBox');
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   runApp(
     ChangeNotifierProvider(
