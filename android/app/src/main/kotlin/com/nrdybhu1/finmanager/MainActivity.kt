@@ -1,4 +1,4 @@
-package com.example.finmanager
+package com.nrdybhu1.finmanager
 
 import io.flutter.embedding.android.FlutterActivity
 

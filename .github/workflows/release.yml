@@ -30,13 +30,13 @@ jobs:
 
       # We use --debug or just a standard build without signing configs
       - name: Build APK
-        run: flutter build apk --debug 
+        run: flutter build apk --release
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           # Path to the generated debug APK
-          files: build/app/outputs/flutter-apk/app-debug.apk
+          files: build/app/outputs/flutter-apk/app-release.apk
           name: Development Release ${{ github.ref_name }}
           tag_name: ${{ github.ref }}
           draft: false
