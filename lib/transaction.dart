@@ -84,7 +84,7 @@ class _TransactionCardState extends State<TransactionCard> {
       onLongPress: () {
         showModalBottomSheet(
           context: context,
-          // isScrollControlled: true,
+          isScrollControlled: true,
           builder: (BuildContext context) {
             return TransactionForm(
               isEditing: true,
@@ -393,7 +393,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 ),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 30),
 
               if (widget.isEditing != null)
               ElevatedButton(

@@ -263,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                // isScrollControlled: true,
+                isScrollControlled: true,
                 builder: (BuildContext context) {
                   return TransactionForm();
                 },
