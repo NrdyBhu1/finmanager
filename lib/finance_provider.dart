@@ -64,7 +64,7 @@ class FinanceProvider with ChangeNotifier {
   }
 
   void createNewSheet() {
-    final previousBalance = _sheets.isEmpty ? 0.0 : _sheets.last.balance;
+    final previousBalance = _sheets.isEmpty ? 0.0 : _sheets.first.balance;
     _createNewSheet(initialBalance: previousBalance);
   }
 
